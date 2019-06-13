@@ -1,6 +1,4 @@
 # coding:utf-8
-import re
-
 from pandas import DataFrame, api
 from sqlalchemy import create_engine
 from sqlalchemy.types import NVARCHAR, Float, Integer
