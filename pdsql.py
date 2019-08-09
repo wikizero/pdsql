@@ -38,9 +38,9 @@ class PdSQLAccessor():
 
         # set primary key
         with con.connect() as con:
-            query_cur_primary_sql = f"SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='{table}' AND constraint_name='PRIMARY'"
-            ret = con.execute(query_cur_primary_sql)
-            cur_primary_keys = list(ret)[0].values()
+            set_primary_sql = f"SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='{table}' AND constraint_name='PRIMARY'"
+            ret = list(con.execute(set_primary_sql))
+            cur_primary_keys = ret[0].values() if ret else []
             if primary_key and primary_key not in cur_primary_keys:
                 con.execute(f'ALTER TABLE `{table}` ADD PRIMARY KEY (`{primary_key}`);')
 
@@ -67,11 +67,11 @@ class PdSQLAccessor():
 
         sql = prefix + fields_str + 'VALUES' + values_str
 
-        for index in range(0, len(values), limit):
-            insert_values = values[index:index + limit]
-            with con.connect() as con:
+        with con.connect() as con:
+            for index in range(0, len(values), limit):
+                insert_values = values[index:index + limit]
                 ret = con.execute(sql, insert_values)
-            print(f'Insert {len(insert_values)} into {table}, {ret.rowcount} rows effected')
+                print(f'Insert {len(insert_values)} into {table}, {ret.rowcount} rows effected')
 
         return True
 
@@ -93,11 +93,11 @@ class PdSQLAccessor():
 
         sql = 'UPDATE ' + table + ' SET ' + set_str + ' WHERE ' + condition_str
 
-        for index in range(0, len(values), limit):
-            insert_values = values[index:index + limit]
-            with con.connect() as con:
+        with con.connect() as con:
+            for index in range(0, len(values), limit):
+                insert_values = values[index:index + limit]
                 ret = con.execute(sql, insert_values)
-            print(f'Insert {len(insert_values)} into {table}, {ret.rowcount} rows effected')
+                print(f'Insert {len(insert_values)} into {table}, {ret.rowcount} rows effected')
 
         return True
 
@@ -131,4 +131,3 @@ if __name__ == '__main__':
     df.pdsql.update('myTable', engine, condition=['id', 'task'])
 
     # TODO Using Transactions
-
